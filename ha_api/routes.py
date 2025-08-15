@@ -1,6 +1,6 @@
 # import the necessary packages
 from flask import render_template, url_for, flash, redirect, request
-from ha_api import app, dbInfo
+from ha_api import app
 import os
 import json
 import datetime
