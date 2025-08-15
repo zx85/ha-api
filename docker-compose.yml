@@ -1,14 +1,12 @@
 version: '3'
 services:
   immersion:
-    container_name: immersion
+    container_name: ha-api
     build:
-      context: ~/immersionSQL
+      context: ~/ha-api
       dockerfile: Dockerfile
     image: result/latest
     restart: unless-stopped
-    env_file:
-      - .env
     ports:
       - "5000:5000" 
 
