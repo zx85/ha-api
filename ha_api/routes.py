@@ -1,7 +1,6 @@
 # import the necessary packages
 from flask import render_template, url_for, flash, redirect, request
 from ha_api import app, dbInfo
-import mysql.connector
 import os
 import json
 import datetime
@@ -19,14 +18,9 @@ def immersion():
         day = str(datetime.datetime.now().day)
         if int(minutes) > 0:
             response = "inserted data"
-            # cnx = mysql.connector.connect(user=dbInfo['dbuser'],
-            # password=dbInfo['dbpass'],
-            # host=dbInfo['dbhost'], port=dbInfo['dbport'],
-            # database=dbInfo['dbname'], auth_plugin='mysql_native_password')
-            # cur=cnx.cursor()
-            # cur.execute("insert into immersion (year,month,day,hour,minutes) values ("+year+","+month+","+day+","+hour+","+minutes+")")
-            # cnx.commit()
-            # cur.close()
+
+        # TODO: Add functionality for adding to Google Sheets
+
         else:
             response = "0 minutes - ignored"
         return response
@@ -44,14 +38,9 @@ def powerups():
         month = str(datetime.datetime.now().month)
         day = str(datetime.datetime.now().day)
         response = "inserted data"
-        # cnx = mysql.connector.connect(user=dbInfo['dbuser'],
-        # password=dbInfo['dbpass'],
-        # host=dbInfo['dbhost'], port=dbInfo['dbport'],
-        # database=dbInfo['dbname'], auth_plugin='mysql_native_password')
-        # cur=cnx.cursor()
-        # cur.execute("insert into powerups (year,month,day,hour) values ("+year+","+month+","+day+","+hour+")")
-        # cnx.commit()
-        # cur.close()
+
+        # TODO: Add functionality for adding to Google Sheets
+
         return response
     else:
         return "You got it wrong.", 401
@@ -68,14 +57,9 @@ def sfd():
         solarGen = request.args.get("solarGen", 0)
 
         response = "inserted data for solaarForecastDay"
-        # cnx = mysql.connector.connect(user=dbInfo['dbuser'],
-        # password=dbInfo['dbpass'],
-        # host=dbInfo['dbhost'], port=dbInfo['dbport'],
-        # database=dbInfo['dbname'], auth_plugin='mysql_native_password')
-        # cur=cnx.cursor()
-        # cur.execute("insert into solarForecastDay (year,month,day,solarGen) values ("+year+","+month+","+day+","+solarGen+")")
-        # cnx.commit()
-        # cur.close()
+
+        # TODO: Add functionality for adding to Google Sheets
+
         return response
     else:
         return "You got it wrong.", 401

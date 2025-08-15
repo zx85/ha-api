@@ -1,7 +1,6 @@
 # import the necessary packages
 from flask import Flask
 import json
-import mysql.connector
 import os
 
 app = Flask(__name__)
