@@ -70,7 +70,6 @@ def powerups():
 def sfd():
     secret = request.args.get("secret", "")
     if secret == "b1533944bfbf7a4d":
-
         year = f'{datetime.datetime.now().year:02d}'
         month = f'{datetime.datetime.now().month:02d}'
         day = f'{datetime.datetime.now().day:02d}'
@@ -92,6 +91,7 @@ def sfd():
 def sfh():
     secret = request.args.get("secret", "")
     if secret == "b1533944bfbf7a4d":
+        year = f'{datetime.datetime.now().year:02d}'
         month = f'{datetime.datetime.now().month:02d}'
         day = f'{datetime.datetime.now().day:02d}'
         hour = request.args.get("hour", str((datetime.datetime.now().hour) + 1))
@@ -99,7 +99,7 @@ def sfh():
         updated_timstm = local_time_now()
         solar_gen = float(request.args.get("solarGen", 0))
 
-        if float(solarGen) > 0:
+        if float(solar_gen) > 0:
             row_fields=[year, month, day, hour, date_string, updated_timstm, solar_gen]
             solar_forecast_hour_sheet.append_row(row_fields)
             response = "inserted data for solarForecastHour"
