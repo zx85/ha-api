@@ -2,9 +2,11 @@ services:
   ha-api:
     container_name: ha-api
     build:
-      context: ~/ha-api
+      context: /usr/local/scripts/ha-api
       dockerfile: Dockerfile
     image: result/latest
+    volumes:
+      - /usr/local/scripts/google.json:/app/google.json:ro
     restart: unless-stopped
     ports:
       - "5000:5000" 

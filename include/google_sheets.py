@@ -14,7 +14,7 @@ from include.logger import log
 
 
 class Spreadsheet:
-    def __init__(self, creds_file, spreadsheet_name, worksheet_name):
+    def __init__(self, creds_file, spreadsheet_name):
         scopes = [
             "https://www.googleapis.com/auth/spreadsheets",
             "https://www.googleapis.com/auth/drive",
@@ -22,7 +22,6 @@ class Spreadsheet:
         creds = Credentials.from_service_account_file(creds_file, scopes=scopes)
         client = gspread.authorize(creds)
         self.spreadsheet = client.open(spreadsheet_name)
-        self.worksheet = self.spreadsheet.worksheet(worksheet_name)
 
     def convert_types(self, row):
         def try_number(val):
@@ -101,12 +100,12 @@ class Spreadsheet:
             return self.convert_types(values[-1])
         return []
 
-    def copy_formulas_for_columns(self, columns):
+    def copy_formulas_for_columns(self, worksheet, columns):
         """
         Copies formulas from the second-to-last row of each column to the last row,
         adjusting row numbers like Google Sheets drag-down, in ONE API call.
         """
-        last_row = len(self.worksheet.get_all_values())
+        last_row = len(worksheet.get_all_values())
         if last_row < 2:
             raise ValueError("Not enough rows to copy from.")
 
@@ -122,7 +121,7 @@ class Spreadsheet:
         requests = []
         for col in columns:
             src_cell = f"{col}{source_row}"
-            formula = self.worksheet.acell(
+            formula = worksheet.acell(
                 src_cell, value_render_option="FORMULA"
             ).value
 
@@ -167,7 +166,7 @@ class Spreadsheet:
             f"Formulas copied for columns {columns} from row {source_row} to {target_row}."
         )
 
-    def check_values_in_columns(self, target_values):
+    def check_values_in_columns(self, worksheet, target_values):
         """
         Check if all three values match in columns A, B, and C of a Google Sheet.
 
@@ -183,7 +182,7 @@ class Spreadsheet:
         # Get all values from columns A, B, and C
         try:
             # Get the range A:C (all rows in columns A, B, C)
-            range_data = self.worksheet.get("A:C")
+            range_data = worksheet.get("A:C")
 
             log.debug("Checking each row")
             for row in range_data:
