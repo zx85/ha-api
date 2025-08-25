@@ -13,15 +13,28 @@ def local_time_now():
     log.debug(f"in local_time_now function - now is {now}")
     return now
 
+def make_date_list(hour=False):
+    date_list=[]
+    year = datetime.datetime.now().year
+    month = datetime.datetime.now().month
+    day = datetime.datetime.now().day
+    updated_timstm = local_time_now()
+    if hour:
+        date_string=date_string = f'{year:02d}-{month:02d}-{day:02d} {hour:02d}:00'
+        date_list=[year,month,day,hour, date_string, updated_timstm]
+    else:
+        date_string=date_string = f'{year:02d}-{month:02d}-{day:02d}'
+        date_list=[year,month,day,date_string, updated_timstm]
+    return date_list
+
 # Initialize spreadsheet
-sheet = Spreadsheet(
-creds_file=f"/app/google.json",
-spreadsheet_name="Solar Database"
-)
-immersion_sheet=sheet.spreadsheet.worksheet("immersion")
-powerups_sheet=sheet.spreadsheet.worksheet("powerups")
-solar_forecast_day_sheet=sheet.spreadsheet.worksheet("solarForecastDay")
-solar_forecast_hour_sheet=sheet.spreadsheet.worksheet("solarForecastHour")
+def init_sheet(sheet_name):
+    sheet = Spreadsheet(
+    creds_file=f"/app/google.json",
+    spreadsheet_name="Solar Database"
+    )
+    active_sheet=sheet.spreadsheet.worksheet(sheet_name)
+    return active_sheet
 
 # boggo immersion stuff
 @app.route("/api/immersion", methods=["GET"])
@@ -30,15 +43,12 @@ def immersion():
     if secret == "b1533944bfbf7a4d":
         hour = request.args.get("hour", int(datetime.datetime.now().hour))
         minutes = int(request.args.get("minutes", "30"))
-        year = f'{datetime.datetime.now().year:02d}'
-        month = f'{datetime.datetime.now().month:02d}'
-        day = f'{datetime.datetime.now().day:02d}'
-        date_string = f'{year}-{month}-{day}'
-        updated_timstm = local_time_now()
-        if int(minutes) > 0:
+        if minutes > 0:
             response = "inserted data"
-            row_fields=[year, month, day, date_string, updated_timstm, hour, minutes]
-            immersion_sheet.append_row(row_fields)
+            row_fields=make_date_list()
+            row_fields.extend([hour,minutes])
+            sheet=init_sheet("immersion")
+            sheet.append_row(row_fields)
         else:
             response = "0 minutes - ignored"
         return response
@@ -51,15 +61,12 @@ def immersion():
 def powerups():
     secret = request.args.get("secret", "")
     if secret == "b1533944bfbf7a4d":
-        hour = request.args.get("hour", int(datetime.datetime.now().hour))
-        year = f'{datetime.datetime.now().year:02d}'
-        month = f'{datetime.datetime.now().month:02d}'
-        day = f'{datetime.datetime.now().day:02d}'
-        date_string = f'{year}-{month}-{day}'
-        updated_timstm = local_time_now()
-
-        row_fields=[year, month, day, date_string, updated_timstm, hour]
-        powerups_sheet.append_row(row_fields)
+        hour = request.args.get("hour", datetime.datetime.now().hour)
+        row_fields=make_date_list()
+        row_fields.append(hour)
+        log.debug(f"row_fields is: {row_fields}")
+        sheet=init_sheet("powerups")
+        sheet.append_row(row_fields)
         return "inserted data"
     else:
         return "You got it wrong.", 401
@@ -69,16 +76,12 @@ def powerups():
 @app.route("/api/solarForecastDay", methods=["GET"])
 def sfd():
     secret = request.args.get("secret", "")
-    if secret == "b1533944bfbf7a4d":
-        year = f'{datetime.datetime.now().year:02d}'
-        month = f'{datetime.datetime.now().month:02d}'
-        day = f'{datetime.datetime.now().day:02d}'
-        date_string = f'{year}-{month}-{day}'
-        updated_timstm = local_time_now()
+    if secret == "b1533944bfbf7a4d":      
         solar_gen = float(request.args.get("solarGen", 0))
-
-        row_fields=[year, month, day, date_string, updated_timstm, solar_gen]
-        solar_forecast_day_sheet.append_row(row_fields)
+        row_fields=make_date_list()
+        row_fields.append(solar_gen)
+        sheet=init_sheet("solarForecastDay")
+        sheet.append_row(row_fields)
         response = "inserted data for solaarForecastDay"
 
         return response
@@ -91,26 +94,17 @@ def sfd():
 def sfh():
     secret = request.args.get("secret", "")
     if secret == "b1533944bfbf7a4d":
-        year = f'{datetime.datetime.now().year:02d}'
-        month = f'{datetime.datetime.now().month:02d}'
-        day = f'{datetime.datetime.now().day:02d}'
-        hour = request.args.get("hour", str((datetime.datetime.now().hour) + 1))
-        date_string = f'{year}-{month}-{day} {hour}:00'
-        updated_timstm = local_time_now()
+
+        hour = int(request.args.get("hour", str((datetime.datetime.now().hour) + 1)))
         solar_gen = float(request.args.get("solarGen", 0))
 
         if float(solar_gen) > 0:
-            row_fields=[year, month, day, hour, date_string, updated_timstm, solar_gen]
-            solar_forecast_hour_sheet.append_row(row_fields)
+            row_fields=make_date_list(hour)
+            row_fields.append(solar_gen)
+            sheet=init_sheet("solarForecastHour")
+            sheet.append_row(row_fields)
             response = "inserted data for solarForecastHour"
-            # cnx = mysql.connector.connect(user=dbInfo['dbuser'],
-            # password=dbInfo['dbpass'],
-            # host=dbInfo['dbhost'], port=dbInfo['dbport'],
-            # database=dbInfo['dbname'], auth_plugin='mysql_native_password')
-            # cur=cnx.cursor()
-            # cur.execute("insert into solarForecastHour (year,month,day,hour,solarGen) values ("+year+","+month+","+day+","+hour+","+solarGen+")")
-            # cnx.commit()
-            # cur.close()
+
         else:
             response = "Value is zero so not bothering to add to solarForecastHour"
         return response
