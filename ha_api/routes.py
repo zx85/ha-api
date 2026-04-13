@@ -5,8 +5,13 @@ import os
 import json
 import datetime
 import time
+from dotenv import load_dotenv
 from include.google_sheets import Spreadsheet
 from include.logger import log
+
+load_dotenv()
+env_secret = os.getenv("SECRET","")
+
 
 def local_time_now():
     now=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
@@ -39,8 +44,8 @@ def init_sheet(sheet_name):
 # boggo immersion stuff
 @app.route("/api/immersion", methods=["GET"])
 def immersion():
-    secret = request.args.get("secret", "")
-    if secret == "b1533944bfbf7a4d":
+    arg_secret = request.args.get("secret", "")
+    if arg_secret == env_secret:
         hour = request.args.get("hour", int(datetime.datetime.now().hour))
         minutes = int(request.args.get("minutes", "30"))
         if minutes > 0:
@@ -59,8 +64,8 @@ def immersion():
 # bonus powerups stuff - very similar to immersion really.
 @app.route("/api/powerups", methods=["GET"])
 def powerups():
-    secret = request.args.get("secret", "")
-    if secret == "b1533944bfbf7a4d":
+    arg_secret = request.args.get("secret", "")
+    if arg_secret == env_secret:
         hour = request.args.get("hour", datetime.datetime.now().hour)
         row_fields=make_date_list()
         row_fields.append(hour)
@@ -75,8 +80,8 @@ def powerups():
 # Day forecast stuff
 @app.route("/api/solarForecastDay", methods=["GET"])
 def sfd():
-    secret = request.args.get("secret", "")
-    if secret == "b1533944bfbf7a4d":      
+    arg_secret = request.args.get("secret", "")
+    if arg_secret == env_secret:      
         solar_gen = float(request.args.get("solarGen", 0))
         row_fields=make_date_list()
         row_fields.append(solar_gen)
@@ -92,8 +97,8 @@ def sfd():
 # Hour forecast stuff
 @app.route("/api/solarForecastHour", methods=["GET"])
 def sfh():
-    secret = request.args.get("secret", "")
-    if secret == "b1533944bfbf7a4d":
+    arg_secret = request.args.get("secret", "")
+    if arg_secret == env_secret:
 
         hour = int(request.args.get("hour", str((datetime.datetime.now().hour) + 1)))
         solar_gen = float(request.args.get("solarGen", 0))
